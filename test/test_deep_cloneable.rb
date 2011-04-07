@@ -10,6 +10,9 @@ class TestDeepCloneable < Test::Unit::TestCase
     @treasure = Treasure.create(:found_at => 'Isla del Muerte', :pirate => @jack, :matey => @john)
     @gold_piece = GoldPiece.create(:treasure => @treasure)
     @ship = BattleShip.create(:name => 'Black Pearl', :pirates => [@jack])
+    @drinker_a = Drinker.create(:matey => @john, :cheer => "Drink up me hearties!")
+    @drinker_b = Drinker.create(:matey => @john, :cheer => "Yo Ho!")
+    @rum  = Bottle.create(:pirate => @jack, :drinkers => [@drinker_a, @drinker_b])
   end
 
   def test_single_clone_exception
@@ -147,5 +150,14 @@ class TestDeepCloneable < Test::Unit::TestCase
     assert clone_human.save
     assert_equal 2, clone_human.chickens.count    
   end 
-  
+ 
+  def test_cloneable_associations
+    pirate = @jack.clone :include => :bottles
+    assert pirate.save
+    assert pirate.bottles.size == 1
+    bottle = pirate.bottles.first
+    # see test_helper BottleOfRum
+    # it uses cloneable_associations to clone drinkers
+    assert bottle.drinkers.first.matey == @john
+  end
 end

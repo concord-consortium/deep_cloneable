@@ -1,46 +1,83 @@
-class ActiveRecord::Base
-  module DeepCloneable
-    # clones an ActiveRecord model. 
-    # if passed the :include option, it will deep clone the given associations
-    # if passed the :except option, it won't clone the given attributes
-    #
-    # === Usage:
-    # 
-    # ==== Cloning one single association
-    #    pirate.clone :include => :mateys
-    # 
-    # ==== Cloning multiple associations
-    #    pirate.clone :include => [:mateys, :treasures]
-    # 
-    # ==== Cloning really deep
-    #    pirate.clone :include => {:treasures => :gold_pieces}
-    # 
-    # ==== Cloning really deep with multiple associations
-    #    pirate.clone :include => [:mateys, {:treasures => :gold_pieces}]
-    #
-    # ==== Cloning really deep with multiple associations and a dictionary
-    #
-    # A dictionary ensures that models are not cloned multiple times when it is associated to nested models. 
-    # When using a dictionary, ensure recurring associations are cloned first:
-    #
-    #    pirate.clone :include => [:mateys, {:treasures => [:matey, :gold_pieces], :use_dictionary => true }]    
-    #
-    # If this is not an option for you, it is also possible to populate the dictionary manually in advance:
-    #
-    #    dict = { :mateys => {} }
-    #    pirate.mateys.each{|m| dict[:mateys][m] = m.clone }
-    #    pirate.clone :include => [:mateys, {:treasures => [:matey, :gold_pieces], :dictionary => dict }]    
-    #   
-    # ==== Cloning a model without an attribute
-    #    pirate.clone :except => :name
-    #  
-    # ==== Cloning a model without multiple attributes
-    #    pirate.clone :except => [:name, :nick_name]
-    #    
-    # ==== Cloning a model without an attribute or nested multiple attributes   
-    #    pirate.clone :include => :parrot, :except => [:name, { :parrot => [:name] }]
-    # 
+module DeepCloneable
+  # clones an ActiveRecord model. 
+  # if passed the :include option, it will deep clone the given associations
+  # if passed the :except option, it won't clone the given attributes
+  #
+  # === Usage:
+  # 
+  # ==== Cloning one single association
+  #    pirate.clone :include => :mateys
+  # 
+  # ==== Cloning multiple associations
+  #    pirate.clone :include => [:mateys, :treasures]
+  # 
+  # ==== Cloning really deep
+  #    pirate.clone :include => {:treasures => :gold_pieces}
+  # 
+  # ==== Cloning really deep with multiple associations
+  #    pirate.clone :include => [:mateys, {:treasures => :gold_pieces}]
+  #
+  # ==== Cloning really deep with multiple associations and a dictionary
+  #
+  # A dictionary ensures that models are not cloned multiple times when it is associated to nested models. 
+  # When using a dictionary, ensure recurring associations are cloned first:
+  #
+  #    pirate.clone :include => [:mateys, {:treasures => [:matey, :gold_pieces], :use_dictionary => true }]    
+  #
+  # If this is not an option for you, it is also possible to populate the dictionary manually in advance:
+  #
+  #    dict = { :mateys => {} }
+  #    pirate.mateys.each{|m| dict[:mateys][m] = m.clone }
+  #    pirate.clone :include => [:mateys, {:treasures => [:matey, :gold_pieces], :dictionary => dict }]    
+  #   
+  # ==== Cloning a model without an attribute
+  #    pirate.clone :except => :name
+  #  
+  # ==== Cloning a model without multiple attributes
+  #    pirate.clone :except => [:name, :nick_name]
+  #    
+  # ==== Cloning a model without an attribute or nested multiple attributes   
+  #    pirate.clone :include => :parrot, :except => [:name, { :parrot => [:name] }]
+  # 
+  
+  def self.included(base)
+    puts "being included in #{base}"
+    base.send :include, DeepCloneable::InstanceMethods
+    base.extend DeepCloneable::ClassMethods
+  end
+  
+  module ClassMethods
+    # in a AR model:
+    #  cloneable_associations :treasure, :shipmates
+    # this will be appended options[:include] for clone
+    def cloneable_associations(*args)
+      @cloneable_associations ||= []
+      @cloneable_associations += args
+      @cloneable_associations
+    end
+  end
+
+  module InstanceMethods
+    
+    # check for included associations.
+    def include_cloneable_associations(options)
+      begin
+        new_assocs = self.class.cloneable_associations
+      rescue
+        # Can't immagine how this would happen, but it would be hard to debug:
+        throw("cloneable class #{self.class.name} fails #cloneable_associations {$!}")
+      end
+      if new_assocs.size > 0
+        options[:include] ||= []
+        if options[:include].kind_of? Hash
+          options[:include] = Array(options[:include])
+        end
+        options[:include] += new_assocs
+      end
+    end
+    
     def clone(options = {})
+      include_cloneable_associations(options)
       dict = options[:dictionary]
       dict ||= {} if options.delete(:use_dictionary)
       
@@ -95,6 +132,8 @@ class ActiveRecord::Base
       return kopy
     end
   end
-  
+end
+
+class ActiveRecord::Base
   include DeepCloneable
 end

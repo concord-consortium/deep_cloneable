@@ -47,5 +47,18 @@ ActiveRecord::Schema.define(:version => 1) do
     t.column :human_id, :integer
     t.column :chicken_id, :integer    
   end  
+ 
   
+  create_table :bottles, :force => true do |t|
+    t.column :pirate_id, :integer
+    t.column :name, :string, :default => "Captain Morgan"
+  end
+
+  create_table :drinkers, :force => true do |t|
+    t.column :matey_id, :integer
+    t.column :bottle_id, :integer
+    t.column :cheer, :string, :default => "Yo Ho Ho! And a bottle of rum!"
+  end
+
+
 end

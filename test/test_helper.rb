@@ -42,6 +42,7 @@ class Pirate < ActiveRecord::Base
   belongs_to :ship, :polymorphic => true
 
   has_many :mateys
+  has_many :bottles
   has_many :treasures, :foreign_key => 'owner'
   has_many :gold_pieces, :through => :treasures
   has_one :parrot
@@ -51,6 +52,17 @@ class Treasure < ActiveRecord::Base
   belongs_to :pirate, :foreign_key => :owner
   belongs_to :matey
   has_many :gold_pieces
+end
+
+class Drinker < ActiveRecord::Base
+  belongs_to :matey
+  belongs_to :bottle
+end
+
+class Bottle < ActiveRecord::Base
+  belongs_to :pirate
+  has_many   :drinkers
+  cloneable_associations :drinkers
 end
 
 def load_schema
