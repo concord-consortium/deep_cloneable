@@ -50,7 +50,6 @@ module DeepCloneable
   #   end
   
   def self.included(base)
-    puts "being included in #{base}"
     base.send :include, DeepCloneable::InstanceMethods
     base.extend DeepCloneable::ClassMethods
   end
