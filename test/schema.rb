@@ -5,50 +5,49 @@ ActiveRecord::Schema.define(:version => 1) do
     t.column :age, :string
     t.column :ship_id, :integer
   end
-  
+
   create_table :parrots, :force => true do |t|
     t.column :name, :string
     t.column :pirate_id, :integer
   end
-  
+
   create_table :mateys, :force => true do |t|
     t.column :name, :string
     t.column :pirate_id, :integer
   end
-  
+
   create_table :treasures, :force => true do |t|
     t.column :found_at, :string
     t.column :owner, :integer
-    t.column :matey_id, :integer    
+    t.column :matey_id, :integer
   end
-  
+
   create_table :gold_pieces, :force => true do |t|
     t.column :treasure_id, :integer
   end
-  
+
   create_table :battle_ships, :force => true do |t|
     t.column :name, :string
-  end  
-  
+  end
+
   create_table :pigs, :force => true do |t|
     t.column :name, :string
     t.column :human_id, :integer
   end
-  
+
   create_table :humen, :force => true do |t|
     t.column :name, :string
   end
-  
+
   create_table :chickens, :force => true do |t|
     t.column :name, :string
-  end  
-  
+  end
+
   create_table :ownerships, :force => true do |t|
     t.column :human_id, :integer
-    t.column :chicken_id, :integer    
-  end  
- 
-  
+    t.column :chicken_id, :integer
+  end
+
   create_table :bottles, :force => true do |t|
     t.column :pirate_id, :integer
     t.column :name, :string, :default => "Captain Morgan"
@@ -59,6 +58,4 @@ ActiveRecord::Schema.define(:version => 1) do
     t.column :bottle_id, :integer
     t.column :cheer, :string, :default => "Yo Ho Ho! And a bottle of rum!"
   end
-
-
 end
