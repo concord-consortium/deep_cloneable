@@ -39,6 +39,15 @@ module DeepCloneable
   # ==== Cloning a model without an attribute or nested multiple attributes   
   #    pirate.clone :include => :parrot, :except => [:name, { :parrot => [:name] }]
   # 
+  #
+  # ==== cloneable_assocation ActiveRecord syntax sugar:
+  #   class Bottle < ActiveRecord::Base
+  #     belongs_to :pirate
+  #     has_many   :drinkers
+  #
+  #     # drinkers will always be included with clone()
+  #     cloneable_associations :drinkers
+  #   end
   
   def self.included(base)
     puts "being included in #{base}"
