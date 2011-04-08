@@ -63,17 +63,25 @@ module DeepCloneable
   end
 
   module ClassMethods
+    
+    def default_uncloneable_attributes
+      return []
+    end
+    def default_cloneable_associations
+      return []
+    end
+    
     # in a AR model:
     #  cloneable_associations :treasure, :shipmates
     # this will be appended options[:include] for clone
     def cloneable_associations(*args)
-      @cloneable_associations ||= DeepCloneable::Defaults.cloneable_associations
+      @cloneable_associations ||= default_cloneable_associations
       @cloneable_associations += args
       @cloneable_associations
     end
 
     def uncloneable_attributes(*args)
-      @uncloneable_attributes ||= DeepCloneable::Defaults.uncloneable_attributes
+      @uncloneable_attributes ||= default_uncloneable_attributes
       @uncloneable_attributes += args
       @uncloneable_attributes
     end
@@ -169,16 +177,6 @@ module DeepCloneable
     end
     return kopy
   end
-  
-  module Defaults
-    def self.uncloneable_attributes
-      return []
-    end
-    def self.cloneable_associations
-      return []
-    end
-  end
-
 end
 
 ActiveRecord::Base.send(:include, DeepCloneable)
