@@ -169,6 +169,16 @@ module DeepCloneable
     end
     return kopy
   end
+  
+  module Defaults
+    def self.uncloneable_attributes
+      return []
+    end
+    def self.cloneable_associations
+      return []
+    end
+  end
+
 end
 
 ActiveRecord::Base.send(:include, DeepCloneable)
