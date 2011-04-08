@@ -57,6 +57,7 @@ end
 class Drinker < ActiveRecord::Base
   belongs_to :matey
   belongs_to :bottle
+  uncloneable_attributes :cheer
 end
 
 class Bottle < ActiveRecord::Base

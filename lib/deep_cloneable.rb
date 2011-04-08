@@ -48,6 +48,14 @@
     #     # drinkers will always be included with clone()
     #     cloneable_associations :drinkers
     #   end
+    # === unclonable_association ActiveRecord syntax sugar:
+    #   class Drinker < ActiveRecord::Base
+    #     belongs_to :matey
+    #     belongs_to :bottle
+    #
+    #     # cheers will never be cloned ... 
+    #     uncloneable_attributes :cheer
+    #   end
 
     def self.included(base)
       base.alias_method_chain :clone, :deep
@@ -63,8 +71,32 @@
         @cloneable_associations += args
         @cloneable_associations
       end
+
+      def uncloneable_attributes(*args)
+        @uncloneable_attributes ||= []
+        @uncloneable_attributes += args
+        @uncloneable_attributes
+      end
+
     end
 
+      # check for removed attributes.
+      def remove_uncloneable_attributes(options)
+        begin
+          remove_attribs = self.class.uncloneable_attributes
+        rescue
+          # Can't immagine how this would happen, but it would be hard to debug:
+          throw("cloneable class #{self.class.name} fails #uncloneable_attributes {$!}")
+        end
+        if remove_attribs.size > 0
+          options[:except] ||= []
+          if options[:except].kind_of? Hash
+            options[:except] = Array(options[:except])
+          end
+          options[:except] += remove_attribs
+        end
+      end
+      
       # check for included associations.
       def include_cloneable_associations(options)
         begin
@@ -84,6 +116,7 @@
 
       def clone_with_deep(options = {})
         include_cloneable_associations(options)
+        remove_uncloneable_attributes(options)
         dict = options[:dictionary]
         dict ||= {} if options.delete(:use_dictionary)
 

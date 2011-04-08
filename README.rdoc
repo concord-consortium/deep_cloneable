@@ -67,7 +67,13 @@ If this is not an option for you, it is also possible to populate the dictionary
      # drinkers will always be included with clone()
      cloneable_associations :drinkers
    end
- 
+=== unclonable_association ActiveRecord syntax sugar:
+   class Drinker < ActiveRecord::Base
+     belongs_to :matey
+     belongs_to :bottle
+     # cheers will never be cloned ... 
+     uncloneable_attributes :cheer
+   end
 == Note on Patches/Pull Requests
  
 * Fork the project.

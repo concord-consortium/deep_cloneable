@@ -159,5 +159,17 @@ class TestDeepCloneable < Test::Unit::TestCase
     # see test_helper BottleOfRum
     # it uses cloneable_associations to clone drinkers
     assert bottle.drinkers.first.matey == @john
+    assert bottle.pirate != @jack
   end
+  def test_uncloneable_attributes
+    pirate = @jack.clone :include => :bottles
+    assert pirate.save
+    assert pirate.bottles.size == 1
+    bottle = pirate.bottles.first
+    # see test_helper drinkers
+    # it uses uncloneable_attributes to prevent cloning cheer
+    assert_not_equal bottle.drinkers.first.cheer, @jack.bottles.first.drinkers.first.cheer
+  end
+
+
 end
