@@ -70,6 +70,9 @@ module DeepCloneable
     def default_cloneable_associations
       return []
     end
+    def default_cloneable_options
+      return {}
+    end
     
     # in a AR model:
     #  cloneable_associations :treasure, :shipmates
@@ -123,6 +126,7 @@ module DeepCloneable
   end
 
   def clone_with_deep(options = {})
+    options = self.class.default_cloneable_options.merge(options)
     include_cloneable_associations(options)
     remove_uncloneable_attributes(options)
     dict = options[:dictionary]
